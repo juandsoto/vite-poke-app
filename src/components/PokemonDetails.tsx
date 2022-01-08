@@ -1,6 +1,8 @@
 import { Pokemon } from '../interfaces/pokemon.interface';
 import styled from 'styled-components';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+import { Evolution } from '../interfaces/evolution.interface';
 
 interface Props {
 	pokemon: Pokemon;
@@ -22,37 +24,44 @@ export const Img = ({ sprites }: { sprites: any }) => {
 
 export const PokemonDetails = ({ pokemon, close }: Props) => {
 	const sprites: string[] = [pokemon.sprites.front_default, pokemon.sprites.back_default];
+
 	return (
 		<>
 			<Layout>
 				<Details>
 					<Item>
-						<List as='div'>
-							<Title>
-								<H1>{pokemon.name}</H1>
-								<Img sprites={sprites} />
-							</Title>
-						</List>
 						<List>
-							<H1 as='h2'>Abilities</H1>
-							{pokemon?.abilities.map(({ ability }, abilityIdx) => (
-								<Ability key={abilityIdx}>{ability.name}</Ability>
-							))}
-						</List>
-						<List>
-							<H1 as='h2'>Main Attacks</H1>
-							{pokemon.moves.slice(0, 5).map((item, moveIdx) => (
-								<Ability key={moveIdx}>{item.move.name}</Ability>
-							))}
+							<h1>{pokemon.name}</h1>
+							<Img sprites={sprites} />
 						</List>
 					</Item>
 
-					{/* <Evolutions>
-						<Evolution/>	
-					<Evolutions/> */}
-
-					{/* <Pokemon /> */}
-
+					<Container>
+						<Item>
+							<List>
+								<h2>Types</h2>
+								{pokemon.types.map(({ type }, typeIdx) => (
+									<ListItem key={typeIdx}>{type.name}</ListItem>
+								))}
+							</List>
+						</Item>
+						<Item>
+							<List>
+								<h2>Abilities</h2>
+								{pokemon?.abilities.map(({ ability }, abilityIdx) => (
+									<ListItem key={abilityIdx}>{ability.name}</ListItem>
+								))}
+							</List>
+						</Item>
+						<Item>
+							<List>
+								<h2>Main Attacks</h2>
+								{pokemon.moves.slice(0, 5).map(({ move }, moveIdx) => (
+									<ListItem key={moveIdx}>{move.name}</ListItem>
+								))}
+							</List>
+						</Item>
+					</Container>
 					<Close onClick={() => close(false)}>x</Close>
 				</Details>
 			</Layout>
@@ -62,17 +71,18 @@ export const PokemonDetails = ({ pokemon, close }: Props) => {
 
 const Layout = styled.div`
 	position: fixed;
+	overflow-y: auto;
 	top: 0;
 	left: 0;
-	width: 100vw;
-	min-height: 100vh;
+	right: 0;
+	bottom: 0;
 	display: flex;
 	justify-content: center;
 	align-items: center;
 	&::before {
 		content: '';
 		background-color: var(--main-color);
-		position: absolute;
+		position: fixed;
 		top: 0;
 		left: 0;
 		right: 0;
@@ -80,8 +90,12 @@ const Layout = styled.div`
 		opacity: 0.6;
 	}
 `;
+
 const Details = styled.div`
 	position: relative;
+	display: flex;
+	flex-direction: column;
+	gap: 8rem;
 	width: 60vw;
 	min-height: 75vh;
 	color: #000;
@@ -89,28 +103,21 @@ const Details = styled.div`
 	@media screen and (max-width: 768px) {
 		width: 90vw;
 		height: 90vh;
+		gap: 0.5rem;
 	}
 `;
 
 const Item = styled.div`
 	display: flex;
-	align-items: center;
-	justify-content: space-evenly;
-	gap: 0.5rem;
+	flex-shrink: 0;
+	align-items: start;
+	justify-content: center;
 	border-radius: 0.5rem;
-	flex-wrap: wrap;
 	padding: 3rem 1.5rem;
 	background-color: rgba(255, 255, 255, 0.9);
 `;
 
-const Title = styled.div`
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-`;
 const Image = styled.img`
-	/* border: 1px solid var(--main-color); */
 	border-radius: 40%;
 	width: 9rem;
 	height: 9rem;
@@ -123,12 +130,33 @@ const Image = styled.img`
 		}
 	}
 `;
+
+const Container = styled.div`
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: start;
+	gap: 4rem;
+	@media screen and (max-width: 768px) {
+		flex-direction: column;
+		align-items: center;
+		gap: 0.5rem;
+	}
+`;
+
 const List = styled.ul`
+	display: flex;
+	flex-direction: column;
 	list-style: none;
 	text-transform: capitalize;
 	padding: 0 0.8rem;
+	text-transform: capitalize;
+	color: var(--main-color);
+	gap: 0.5rem;
 `;
-const Ability = styled.li``;
+
+const ListItem = styled.li``;
 
 const Close = styled.button`
 	position: absolute;
@@ -137,10 +165,4 @@ const Close = styled.button`
 	top: 0rem;
 	right: 1rem;
 	cursor: pointer;
-`;
-
-const H1 = styled.h1`
-	text-transform: capitalize;
-	color: var(--main-color);
-	padding-bottom: 0.5rem;
 `;

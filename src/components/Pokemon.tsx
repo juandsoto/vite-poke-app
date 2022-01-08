@@ -27,9 +27,7 @@ export const Pokemon = ({ url, children }: Props) => {
 	return (
 		<>
 			<Item onClick={() => SetShowDetails(true)}>
-				{loading ? (
-					<p>loading...</p>
-				) : (
+				{!loading && (
 					<>
 						<div style={{ backgroundColor: 'white' }}>
 							<img src={pokemon?.sprites.front_default} alt={pokemon?.name} />
